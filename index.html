@@ -147,7 +147,7 @@
   }
   .section-gap{display:flex;flex-direction:column;gap:16px;}
   .section-title{display:flex;align-items:center;gap:10px;margin-bottom:4px;}
-  .section-title h2{font-size:19px;line-height:1.3;}
+  .section-title h2{font-size:19px;line-height:1.3;word-break:keep-all;}
   .section-title .num{
     width:26px;height:26px;border-radius:8px;background:var(--accent);color:#fff;
     display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:12px;font-weight:600;
@@ -192,7 +192,7 @@
     font-family:var(--font-mono);font-weight:600;font-size:13px;border:1px solid var(--border);
   }
   .cat-titles{flex:1;min-width:0;}
-  .cat-titles h3{font-size:15.5px;font-weight:700;}
+  .cat-titles h3{font-size:15.5px;font-weight:700;word-break:keep-all;}
   .cat-meta{font-size:12.5px;color:var(--ink-faint);margin-top:3px;}
   .cat-score{
     flex:none;font-family:var(--font-mono);
@@ -208,6 +208,15 @@
   .cat-score.state-full .val,.cat-score.state-full .cap{color:var(--pass);}
   .cat-body{margin-top:14px;padding-left:48px;}
   @media (max-width:520px){.cat-body{padding-left:0;}}
+  @media (max-width:640px){
+    .cat-head{
+      display:grid;grid-template-columns:34px 1fr;grid-template-areas:"no title" ". score";
+      align-items:start;column-gap:14px;row-gap:8px;
+    }
+    .cat-no{grid-area:no;}
+    .cat-titles{grid-area:title;}
+    .cat-score{grid-area:score;justify-self:end;}
+  }
   .cat-docs{
     margin-top:10px;padding-left:48px;font-size:12px;color:var(--ink-faint);
   }
@@ -353,7 +362,8 @@
     background:var(--surface-alt);border:1px solid var(--border);border-radius:10px;
     padding:10px 12px;
   }
-  .entry .pts{margin-left:auto;font-family:var(--font-mono);font-size:13px;color:var(--accent-strong);font-weight:600;white-space:nowrap;}
+  .entry-actions{margin-left:auto;display:flex;align-items:center;gap:10px;}
+  .entry .pts{font-family:var(--font-mono);font-size:13px;color:var(--accent-strong);font-weight:600;white-space:nowrap;}
   .entry .rm{
     background:none;border:none;color:var(--ink-faint);cursor:pointer;font-size:16px;line-height:1;padding:2px 4px;
   }
@@ -1427,13 +1437,15 @@
       });
       row.appendChild(sel);
     });
-    row.appendChild(pts);
     var rm = el("button","rm","✕");
     rm.type = "button";
     rm.addEventListener("click", function(){
       removeEntryRow(key, entry, wrap);
     });
-    row.appendChild(rm);
+    var actions = el("div","entry-actions");
+    actions.appendChild(pts);
+    actions.appendChild(rm);
+    row.appendChild(actions);
 
     /* url 타입 필드(예: 논문 URL)는 선택 입력이라 드롭다운 줄과 분리해
        카드 안에서 한 줄 아래로 넘어가도록 별도 블록으로 붙임(.entry-extra는
