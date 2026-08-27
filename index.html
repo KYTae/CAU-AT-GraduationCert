@@ -617,8 +617,8 @@
           <div class="field-block" id="cohortBlock">
             <div class="field-label" id="cohortLabel">입학년도 구분</div>
             <div class="pill-group" id="grp-cohort">
-              <label class="pill active"><input type="radio" name="cohort" value="legacy" checked>2025학년도 이전</label>
-              <label class="pill"><input type="radio" name="cohort" value="new">2026학년도 이후</label>
+              <label class="pill active"><input type="radio" name="cohort" value="legacy" checked>2026학년도까지</label>
+              <label class="pill"><input type="radio" name="cohort" value="new">2027학년도부터</label>
             </div>
           </div>
         </div>
@@ -997,7 +997,7 @@
     <aside class="summary">
       <div class="card" id="summaryCard">
         <h4>통과 기준</h4>
-        <div class="basis-line" id="basisLine">주전공 · 2026학년도 이후 입학</div>
+        <div class="basis-line" id="basisLine">주전공 · 2026학년도까지 입학(경과조치)</div>
         <div class="total-row"><span class="num" id="totalScore">0</span><span class="den" id="totalDenom">/ 30점</span></div>
         <div class="bar"><div class="bar-fill" id="barFill" style="width:0%"></div></div>
         <span class="status-badge fail" id="statusBadge"><span class="ico"></span><span id="statusText">미통과</span></span>
@@ -1206,29 +1206,29 @@
 
   function threshold(){
     if(eligState.studentType === "double") return {value:15, basis:"복수전공"};
-    if(eligState.cohort === "new") return {value:30, basis:"주전공 · 2026학년도 이후 입학·편입·전과 / 복수전공 합격"};
-    return {value:20, basis:"주전공 · 2025학년도 이전 입학(경과조치)"};
+    if(eligState.cohort === "new") return {value:30, basis:"주전공 · 2027학년도부터 입학·편입·전과 / 복수전공 합격"};
+    return {value:20, basis:"주전공 · 2026학년도까지 입학(경과조치)"};
   }
 
   function renderEligibility(){
     var isDouble = eligState.studentType === "double";
     $("#cohortLabel").textContent = isDouble ? "복수전공 합격 시점" : "입학년도 구분";
-    $all("#grp-cohort .pill")[0].lastChild.textContent = isDouble ? "2025학년도 이전 합격" : "2025학년도 이전";
-    $all("#grp-cohort .pill")[1].lastChild.textContent = isDouble ? "2026학년도 이후 합격" : "2026학년도 이후";
+    $all("#grp-cohort .pill")[0].lastChild.textContent = isDouble ? "2026학년도까지 합격" : "2026학년도까지";
+    $all("#grp-cohort .pill")[1].lastChild.textContent = isDouble ? "2027학년도부터 합격" : "2027학년도부터";
 
     var th = threshold();
     var note = "";
     if(!isDouble){
       if(eligState.cohort === "new"){
-        note = "<b>2026학년도 이후 입학생</b>은 학사 졸업논문 대체 요건으로 SW졸업인증제 통과가 <b>필수</b>이며, 통과 기준은 <b>주전공 30점</b>입니다.";
+        note = "<b>2027학년도부터 입학생</b>은 SW졸업인증제 통과가 <b>필수</b>이며, 통과 기준은 <b>30점</b>입니다.";
       } else {
-        note = "2025학년도 이전 입학생(컴퓨터예술학부·예술공학부 소속)은 <b>경과조치</b> 대상으로, 기존 졸업작품전시 규정이 원칙이나 SW졸업인증제를 선택할 경우 <b>20점</b> 이상이면 통과로 인정됩니다.";
+        note = "2026학년도까지 입학생(컴퓨터예술학부·예술공학부 소속)은 <b>경과조치</b> 대상으로, SW졸업인증제 통과가 <b>필수</b>이며, 통과 기준은 <b>20점</b>입니다.";
       }
     } else {
       if(eligState.cohort === "new"){
-        note = "2026학년도 이후 복수전공 합격자는 SW졸업인증제 통과가 <b>필수</b>이며, 통과 기준은 <b>복수전공 15점</b>입니다.";
+        note = "2027학년도부터 복수전공 합격자는 SW졸업인증제 통과가 <b>필수</b>이며, 통과 기준은 <b>15점</b>입니다.";
       } else {
-        note = "2025학년도 이전 복수전공 합격자는 경과조치 대상으로, SW졸업인증제 선택 시 <b>15점</b> 이상이면 통과로 인정됩니다.";
+        note = "2026학년도까지 복수전공 합격자는 <b>경과조치</b> 대상으로, SW졸업인증제 통과가 <b>필수</b>이며, 통과 기준은 <b>15점</b>입니다.";
       }
     }
     if(eligState.gradTerm !== "2027+"){
