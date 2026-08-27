@@ -371,6 +371,7 @@
   .entry-extra{flex:1 0 100%;display:flex;flex-direction:column;gap:4px;margin-top:2px;}
   .entry-extra label{font-size:11.5px;color:var(--ink-faint);}
   .entry-extra input{width:100%;max-width:420px;}
+  .entry-extra-hint{font-size:11px;color:var(--ink-faint);max-width:420px;margin-top:-1px;}
   .btn{
     display:inline-flex;align-items:center;gap:6px;
     background:var(--accent);color:#fff;border:none;border-radius:8px;
@@ -690,6 +691,10 @@
               <label class="pill"><input type="radio" name="exhibit" value="pass">Pass (15점)</label>
               <label class="pill"><input type="radio" name="exhibit" value="fail">Fail (5점)</label>
               <label class="pill active"><input type="radio" name="exhibit" value="none" checked>미참여 / 해당없음</label>
+            </div>
+            <div class="link-field" id="linkfield-exhibit-project">
+              <label for="info-exhibit-project">프로젝트명</label>
+              <input type="text" class="txt-input" id="info-exhibit-project" placeholder="예: OOO 프로젝트">
             </div>
           </div>
           <div class="cat-docs">
@@ -1260,6 +1265,31 @@
     paint();
   }
 
+  /* "Pass"나 "Fail"을 선택했을 때만 프로젝트명 입력칸을 펼침 — updateExemptReveal과
+     동일한 방식(실측 scrollHeight 기반 max-height 애니메이션). */
+  function updateExhibitProjectReveal(){
+    var show = singleState.exhibit !== "none";
+    var box = $("#linkfield-exhibit-project");
+    if(!box) return;
+    clearTimeout(box._revealTimer);
+    if(show){
+      box.style.overflow = "hidden";
+      box.classList.add("show");
+      box.style.maxHeight = box.scrollHeight + "px";
+      box._revealTimer = setTimeout(function(){
+        box.style.overflow = "visible";
+        box.style.maxHeight = "none";
+      }, 380);
+    } else {
+      var current = box.scrollHeight;
+      box.style.overflow = "hidden";
+      box.style.maxHeight = current + "px";
+      void box.offsetHeight;
+      box.style.maxHeight = "0px";
+      box.classList.remove("show");
+    }
+  }
+
   function wireExhibit(){
     var group = $("#grp-exhibit");
     $all("input[type=radio]", group).forEach(function(input){
@@ -1268,9 +1298,12 @@
         singleState.exhibit = input.value;
         $all(".pill", group).forEach(function(p){ p.classList.remove("active"); });
         input.closest(".pill").classList.add("active");
+        updateExhibitProjectReveal();
         recalcAll(); saveState();
       });
     });
+    updateExhibitProjectReveal();
+    $("#info-exhibit-project").addEventListener("input", saveState);
   }
 
   /* ---------------- multi-entry engine ---------------- */
@@ -1279,9 +1312,11 @@
       addBtn:"#add-internship", list:"#list-internship",
       fields:[
         {name:"credit", type:"select", opts:[["y","학점인정(현장실습수업)"],["n","학점미인정(개별)"]]},
-        {name:"weeks", type:"select", opts:[["16","16주 이상"],["8","8주 이상 ~ 16주 미만"],["4","4주 이상 ~ 8주 미만"]]}
+        {name:"weeks", type:"select", opts:[["16","16주 이상"],["8","8주 이상 ~ 16주 미만"],["4","4주 이상 ~ 8주 미만"]]},
+        {name:"company", type:"text", label:"업체명", placeholder:"예: OOO 주식회사"},
+        {name:"applyUrl", type:"url", label:"신청 링크 (선택)", placeholder:"https://...", hint:"레인보우시스템이나 현장실습지원센터에서 신청했다면 해당 링크를 첨부하세요"}
       ],
-      newEntry:function(){ return {credit:"y", weeks:"16"}; },
+      newEntry:function(){ return {credit:"y", weeks:"16", company:"", applyUrl:""}; },
       weekPts:{"16":16,"8":8,"4":4},
       compute:function(list, self){
         var creditSum=0, nonCreditBest=0;
@@ -1308,9 +1343,10 @@
     labintern: {
       addBtn:"#add-labintern", list:"#list-labintern",
       fields:[
-        {name:"weeks", type:"select", opts:[["16","16주 이상 · 10점"],["8","8주 이상 ~ 16주 미만 · 5점"]]}
+        {name:"weeks", type:"select", opts:[["16","16주 이상 · 10점"],["8","8주 이상 ~ 16주 미만 · 5점"]]},
+        {name:"lab", type:"text", label:"연구실명", placeholder:"예: OOO 연구실"}
       ],
-      newEntry:function(){ return {weeks:"16"}; },
+      newEntry:function(){ return {weeks:"16", lab:""}; },
       weekPts:{"16":10,"8":5},
       cap:15,
       compute:function(list, self){
@@ -1381,7 +1417,7 @@
     var def = ENTRY_DEFS[key];
     var parts = [];
     def.fields.forEach(function(f){
-      if(f.type === "url"){
+      if(f.type === "url" || f.type === "text"){
         var v = (entry[f.name]||"").trim();
         if(v) parts.push(escapeHtml(v));
         return;
@@ -1395,7 +1431,9 @@
   function categoryDetailHtml(c){
     switch(c.key){
       case "exhibit":
-        return singleState.exhibit === "pass" ? "Pass (심사 참여 완료)" : (singleState.exhibit === "fail" ? "Fail (심사 참여, 결과 Fail)" : "미참여 / 해당없음");
+        var exhibitBase = singleState.exhibit === "pass" ? "Pass (심사 참여 완료)" : (singleState.exhibit === "fail" ? "Fail (심사 참여, 결과 Fail)" : "미참여 / 해당없음");
+        var exhibitProjectVal = ($("#info-exhibit-project").value||"").trim();
+        return exhibitBase + (exhibitProjectVal ? (" · 프로젝트명: " + escapeHtml(exhibitProjectVal)) : "");
       case "topcit":
         return TOPCIT_LABELS[singleState.topcit] || "미입력";
       case "exchange":
@@ -1447,26 +1485,29 @@
     actions.appendChild(rm);
     row.appendChild(actions);
 
-    /* url 타입 필드(예: 논문 URL)는 선택 입력이라 드롭다운 줄과 분리해
-       카드 안에서 한 줄 아래로 넘어가도록 별도 블록으로 붙임(.entry-extra는
+    /* text/url 타입 필드(예: 연구실명, 업체명, 논문 URL)는 선택 입력이라 드롭다운 줄과
+       분리해 카드 안에서 한 줄씩 아래로 넘어가도록 별도 블록으로 붙임(.entry-extra는
        flex-basis:100%로 항상 새 줄에서 시작함). */
-    var urlField = def.fields.filter(function(f){ return f.type === "url"; })[0];
-    if(urlField){
+    var extraFields = def.fields.filter(function(f){ return f.type === "url" || f.type === "text"; });
+    extraFields.forEach(function(extraField){
       var extra = el("div","entry-extra");
-      var label = el("label", null, urlField.label || "URL (선택)");
+      var label = el("label", null, extraField.label || (extraField.type === "url" ? "URL (선택)" : ""));
       var input = document.createElement("input");
-      input.type = "url";
+      input.type = extraField.type === "url" ? "url" : "text";
       input.className = "txt-input";
-      input.placeholder = urlField.placeholder || "https://...";
-      input.value = entry[urlField.name] || "";
+      input.placeholder = extraField.placeholder || (extraField.type === "url" ? "https://..." : "");
+      input.value = entry[extraField.name] || "";
       input.addEventListener("input", function(){
-        entry[urlField.name] = input.value;
+        entry[extraField.name] = input.value;
         saveState();
       });
       extra.appendChild(label);
       extra.appendChild(input);
+      if(extraField.hint){
+        extra.appendChild(el("div","entry-extra-hint", extraField.hint));
+      }
       row.appendChild(extra);
-    }
+    });
 
     wrap.appendChild(row);
     return wrap;
@@ -1868,7 +1909,8 @@
         phone: $("#info-phone").value,
         email: $("#info-email").value,
         graddate: $("#info-graddate").value,
-        exemptReason: $("#info-exempt-reason").value
+        exemptReason: $("#info-exempt-reason").value,
+        exhibitProject: $("#info-exhibit-project").value
       },
       elig: {
         studentType: eligState.studentType,
@@ -2075,6 +2117,7 @@
         if(rec.info.email) $("#info-email").value = rec.info.email;
         if(rec.info.graddate) $("#info-graddate").value = rec.info.graddate;
         if(rec.info.exemptReason) $("#info-exempt-reason").value = rec.info.exemptReason;
+        if(rec.info.exhibitProject) $("#info-exhibit-project").value = rec.info.exhibitProject;
       }
       if(rec.sign){
         if(rec.sign.name) $("#sign-name").value = rec.sign.name;
