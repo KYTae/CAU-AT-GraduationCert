@@ -27,6 +27,12 @@
     --shadow: 0 1px 2px rgba(23,26,46,0.04), 0 8px 24px -12px rgba(23,26,46,0.18);
     --on-accent:#ffffff;
     --pop-shadow: 0 2px 6px rgba(23,26,46,0.08), 0 16px 36px -10px rgba(23,26,46,0.30);
+    --dock-bg:rgba(27,31,58,0.94);
+    --dock-ink:#ffffff;
+    --dock-faint:rgba(255,255,255,0.62);
+    --dock-border:rgba(255,255,255,0.10);
+    --dock-link:#b8c0ff;
+    --dock-shadow: 0 6px 16px rgba(23,26,46,0.22), 0 18px 40px -12px rgba(23,26,46,0.45);
     color-scheme: light;
   }
   @media (prefers-color-scheme: dark){
@@ -54,6 +60,12 @@
       --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.6);
       --on-accent:#0e1120;
       --pop-shadow: 0 2px 6px rgba(0,0,0,0.35), 0 18px 40px -10px rgba(0,0,0,0.7);
+      --dock-bg:rgba(44,51,92,0.95);
+      --dock-ink:#ffffff;
+      --dock-faint:#b9bedb;
+      --dock-border:#5a62a0;
+      --dock-link:#c3caff;
+      --dock-shadow: 0 6px 18px rgba(0,0,0,0.5), 0 20px 44px -10px rgba(0,0,0,0.8);
       color-scheme: dark;
     }
   }
@@ -65,6 +77,12 @@
     --border-strong:#454c80;
     --on-accent:#0e1120;
     --pop-shadow: 0 2px 6px rgba(0,0,0,0.35), 0 18px 40px -10px rgba(0,0,0,0.7);
+    --dock-bg:rgba(44,51,92,0.95);
+    --dock-ink:#ffffff;
+    --dock-faint:#b9bedb;
+    --dock-border:#5a62a0;
+    --dock-link:#c3caff;
+    --dock-shadow: 0 6px 18px rgba(0,0,0,0.5), 0 20px 44px -10px rgba(0,0,0,0.8);
     color-scheme: dark;
     --ink:#eef0fa;
     --ink-soft:#a7acc9;
@@ -657,24 +675,94 @@
     }
     .score-dock.show{opacity:1;transform:none;pointer-events:auto;}
   }
+  /* 아래 카드들과 같은 색이면 겹쳐서 구분이 안 되므로, 배경보다 한 단계 진한(다크
+     모드에서는 한 단계 밝은) 남색 판에 테두리·그림자·배경 흐림을 줘서 항상 떠 보이게 함 */
   .score-dock-inner{
     width:100%;max-width:560px;margin:0 auto;display:flex;align-items:center;gap:12px;
-    padding:10px 14px;border-radius:14px;background:var(--surface);border:1px solid var(--border);
-    box-shadow:var(--pop-shadow);color:var(--ink);font:inherit;text-align:left;cursor:pointer;
-    transition:transform .12s ease;
+    padding:10px 14px;border-radius:14px;background:var(--dock-bg);border:1px solid var(--dock-border);
+    box-shadow:var(--dock-shadow);color:var(--dock-ink);font:inherit;text-align:left;cursor:pointer;
+    -webkit-backdrop-filter:blur(10px) saturate(1.2);backdrop-filter:blur(10px) saturate(1.2);
+    transition:transform .12s ease,background-color .35s ease,border-color .35s ease;
   }
   .score-dock-inner:active{transform:scale(.99);}
-  .sd-score{font-family:var(--font-mono);font-size:13px;color:var(--ink-faint);white-space:nowrap;}
-  .sd-score b{font-size:20px;color:var(--ink);margin-right:3px;}
+  .sd-score{font-family:var(--font-mono);font-size:13px;color:var(--dock-faint);white-space:nowrap;}
+  .sd-score b{font-size:20px;color:var(--dock-ink);margin-right:3px;}
   .score-dock .status-badge{padding:4px 10px;font-size:12px;}
-  .sd-go{margin-left:auto;font-size:12.5px;color:var(--accent);font-weight:600;white-space:nowrap;}
+  .sd-go{margin-left:auto;font-size:12.5px;color:var(--dock-link);font-weight:600;white-space:nowrap;display:inline-flex;align-items:center;gap:4px;}
+  .sd-go svg{width:14px;height:14px;}
+
+  /* ---------- 화면 모드(라이트/다크) 선택 ---------- */
+  .hero{position:relative;}
+  .theme-toggle{
+    position:absolute;top:18px;right:20px;z-index:1;
+    display:inline-flex;padding:3px;border-radius:999px;
+    background:var(--surface);border:1px solid var(--border);box-shadow:0 1px 2px rgba(23,26,46,.06);
+  }
+  .tt-thumb{
+    position:absolute;top:3px;bottom:3px;left:3px;width:calc(50% - 3px);border-radius:999px;
+    background:var(--accent);transition:transform .3s cubic-bezier(.4,0,.2,1),background-color .35s ease;
+  }
+  .theme-toggle[data-mode="dark"] .tt-thumb{transform:translateX(100%);}
+  .tt-opt{
+    position:relative;z-index:1;flex:1 1 0;min-width:66px;
+    display:inline-flex;align-items:center;justify-content:center;gap:5px;
+    padding:5px 11px;border:none;background:none;border-radius:999px;cursor:pointer;
+    font:inherit;font-size:12px;font-weight:600;color:var(--ink-soft);
+    transition:color .25s ease;
+  }
+  .tt-opt:hover{color:var(--ink);}
+  .tt-opt[aria-checked="true"]{color:var(--on-accent);}
+  .tt-opt svg{width:14px;height:14px;flex:none;}
+  .tt-opt:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  @media (max-width:640px){
+    .theme-toggle{position:relative;top:auto;right:auto;align-self:flex-end;margin:-10px -8px 4px 0;}
+  }
+  /* 모드를 바꾸는 순간에만 색이 한꺼번에 부드럽게 넘어가도록 잠깐 붙는 클래스 */
+  .theme-anim,.theme-anim *,.theme-anim *::before,.theme-anim *::after{
+    transition:background-color .35s ease,color .35s ease,border-color .35s ease,box-shadow .35s ease,fill .35s ease,stroke .35s ease !important;
+  }
+  .theme-anim .tt-thumb{transition:transform .3s cubic-bezier(.4,0,.2,1),background-color .35s ease !important;}
 
   .page > .footnote{margin-top:22px;}
 
   @media (prefers-reduced-motion: reduce){
     *,*::before,*::after{transition-duration:.01ms !important;animation-duration:.01ms !important;}
   }
+  /* 다크 모드(기기 설정 또는 화면 모드 선택)로 보던 중에 인쇄해도 결과지는 항상 흰 종이에
+     맞는 밝은 색으로 나오도록, 인쇄할 때만 색상 변수를 라이트 값으로 되돌림 */
+  @media print{
+    :root:root:root{
+      --bg:#f5f6fb;
+      --surface:#ffffff;
+      --surface-alt:#eef0f8;
+      --border:#dde0ee;
+      --border-strong:#b7bede;
+      --ink:#171a2e;
+      --ink-soft:#565b7a;
+      --ink-faint:#8489a8;
+      --accent:#2f3fa8;
+      --accent-strong:#222f8c;
+      --accent-soft:#e7e9fb;
+      --coral:#ff6a4d;
+      --coral-soft:#ffe9e2;
+      --pass:#188a5a;
+      --pass-soft:#e2f5ec;
+      --warn:#a86a06;
+      --warn-soft:#fbedd3;
+      --fail:#c93f3f;
+      --fail-soft:#fbe3e3;
+      --mark:#ffd54f;
+      --shadow: 0 1px 2px rgba(23,26,46,0.04), 0 8px 24px -12px rgba(23,26,46,0.18);
+      --on-accent:#ffffff;
+      color-scheme: light;
+    }
+  }
 </style>
+<script>
+/* 사용자가 직접 고른 화면 모드가 있으면 그림을 그리기 전에 먼저 적용(깜빡임 방지).
+   고른 적이 없으면 아무 것도 하지 않아 기기(시스템) 설정을 그대로 따름. */
+(function(){try{var t=localStorage.getItem("swcert-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();
+</script>
 
 <div class="page">
 
@@ -730,6 +818,11 @@
   </div>
 
   <header class="hero no-print">
+    <div class="theme-toggle" id="themeToggle" role="radiogroup" aria-label="화면 모드">
+      <span class="tt-thumb" aria-hidden="true"></span>
+      <button type="button" class="tt-opt" role="radio" aria-checked="true" data-theme-value="light"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="3.1" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 1.6v1.6M8 12.8v1.6M1.6 8h1.6M12.8 8h1.6M3.5 3.5l1.1 1.1M11.4 11.4l1.1 1.1M3.5 12.5l1.1-1.1M11.4 4.6l1.1-1.1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>라이트</button>
+      <button type="button" class="tt-opt" role="radio" aria-checked="false" data-theme-value="dark"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13.2 10.1A5.6 5.6 0 0 1 5.9 2.8a5.6 5.6 0 1 0 7.3 7.3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>다크</button>
+    </div>
     <div class="hero-left">
       <div class="eyebrow"><span class="dot"></span>SW졸업인증제 &middot; 2025.12.26 제정</div>
       <h1>SW졸업인증 자가진단</h1>
@@ -1189,7 +1282,7 @@
     <button type="button" class="score-dock-inner" id="scoreDockBtn" tabindex="-1">
       <span class="sd-score"><b id="dockTotal">0</b><span id="dockDenom">/ 20점</span></span>
       <span class="status-badge fail" id="dockBadge"><span class="ico"></span><span id="dockStatus">미통과</span></span>
-      <span class="sd-go">결과 보기</span>
+      <span class="sd-go">결과 보기<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
     </button>
   </div>
 
@@ -1219,7 +1312,7 @@
      아무 것도 동적으로 바뀌지 않은 최초 상태)에 한 번만 찍어두므로, 이후
      사용자가 아무리 값을 입력/추가/삭제해도 이 문자열 자체는 항상 깨끗한
      초기 마크업을 유지함 — 여기에 입력값만 별도 JSON으로 얹어서 내보냄. */
-  var PRISTINE_HTML = document.documentElement.outerHTML;
+  var PRISTINE_HTML = document.documentElement.outerHTML.replace(/^<html([^>]*?) data-theme="(?:light|dark)"/, "<html$1");
 
   var booted = false; // init()이 끝나기 전(첫 화면 구성·저장 기록 복원 중)에는 애니메이션 없이 즉시 그림
   var REDUCE_MOTION = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
@@ -2591,6 +2684,7 @@
 
     $("#printBtn").addEventListener("click", buildAppendixAndPrint);
     wireScoreDock();
+    wireThemeToggle();
     $("#saveAsBtn").addEventListener("click", exportRecord);
 
     $all("#info-id,#info-name,#info-major,#info-prof,#info-email,#info-graddate").forEach(function(inp){
@@ -2615,6 +2709,62 @@
       saveState();
     });
     booted = true;
+  }
+
+
+  /* ---------------- 화면 모드(라이트/다크) ----------------
+     처음에는 기기 설정을 그대로 따르고, 사용자가 고르면 그 선택을 이 기기 브라우저에
+     기억해 둠(다음에 열어도 유지, 언제든 다시 변경 가능). */
+  var THEME_KEY = "swcert-theme";
+  var darkMQ = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+  function currentTheme(){
+    var t = document.documentElement.getAttribute("data-theme");
+    if(t === "light" || t === "dark") return t;
+    return (darkMQ && darkMQ.matches) ? "dark" : "light";
+  }
+  function paintThemeToggle(){
+    var tg = $("#themeToggle");
+    if(!tg) return;
+    var t = currentTheme();
+    tg.setAttribute("data-mode", t);
+    $all(".tt-opt", tg).forEach(function(b){
+      var on = b.getAttribute("data-theme-value") === t;
+      b.setAttribute("aria-checked", on ? "true" : "false");
+      b.tabIndex = on ? 0 : -1;
+    });
+  }
+  function setTheme(t){
+    var root = document.documentElement;
+    if(currentTheme() === t && root.getAttribute("data-theme") === t) return;
+    if(!REDUCE_MOTION){
+      root.classList.add("theme-anim");
+      clearTimeout(setTheme._timer);
+      setTheme._timer = setTimeout(function(){ root.classList.remove("theme-anim"); }, 450);
+    }
+    root.setAttribute("data-theme", t);
+    try{ localStorage.setItem(THEME_KEY, t); }catch(e){}
+    paintThemeToggle();
+  }
+  function wireThemeToggle(){
+    var tg = $("#themeToggle");
+    if(!tg) return;
+    $all(".tt-opt", tg).forEach(function(b){
+      b.addEventListener("click", function(){ setTheme(b.getAttribute("data-theme-value")); });
+    });
+    tg.addEventListener("keydown", function(e){
+      if(e.key !== "ArrowLeft" && e.key !== "ArrowRight" && e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
+      e.preventDefault();
+      var t = currentTheme() === "dark" ? "light" : "dark";
+      setTheme(t);
+      var b = $('.tt-opt[data-theme-value="' + t + '"]', tg);
+      if(b) b.focus();
+    });
+    if(darkMQ){
+      var onSystemChange = function(){ if(!document.documentElement.getAttribute("data-theme")) paintThemeToggle(); };
+      if(darkMQ.addEventListener) darkMQ.addEventListener("change", onSystemChange);
+      else if(darkMQ.addListener) darkMQ.addListener(onSystemChange);
+    }
+    paintThemeToggle();
   }
 
   /* 모바일(1단 배치)에서는 점수·판정 카드가 긴 입력 양식 맨 아래에 있어 보이지 않으므로,
