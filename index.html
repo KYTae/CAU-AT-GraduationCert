@@ -25,6 +25,9 @@
     --fail-soft:#fbe3e3;
     --mark:#ffd54f;
     --shadow: 0 1px 2px rgba(23,26,46,0.04), 0 8px 24px -12px rgba(23,26,46,0.18);
+    --on-accent:#ffffff;
+    --pop-shadow: 0 2px 6px rgba(23,26,46,0.08), 0 16px 36px -10px rgba(23,26,46,0.30);
+    color-scheme: light;
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
@@ -49,6 +52,9 @@
       --fail-soft:#3a1717;
       --mark:#caa227;
       --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.6);
+      --on-accent:#0e1120;
+      --pop-shadow: 0 2px 6px rgba(0,0,0,0.35), 0 18px 40px -10px rgba(0,0,0,0.7);
+      color-scheme: dark;
     }
   }
   :root[data-theme="dark"]{
@@ -56,6 +62,10 @@
     --surface:#161a2e;
     --surface-alt:#1e2238;
     --border:#2b3050;
+    --border-strong:#454c80;
+    --on-accent:#0e1120;
+    --pop-shadow: 0 2px 6px rgba(0,0,0,0.35), 0 18px 40px -10px rgba(0,0,0,0.7);
+    color-scheme: dark;
     --ink:#eef0fa;
     --ink-soft:#a7acc9;
     --ink-faint:#767ba0;
@@ -89,6 +99,8 @@
     font-weight:400;
     font-size:15px;
     line-height:1.65;
+    word-break:keep-all;
+    overflow-wrap:break-word;
     -webkit-font-smoothing:antialiased;
   }
   h1,h2,h3,h4{
@@ -138,8 +150,8 @@
   }
 
   /* ---------- Layout ---------- */
-  .layout{display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start;}
-  @media (max-width:1080px){ .layout{grid-template-columns:1fr;} }
+  .layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:20px;align-items:start;}
+  @media (max-width:1080px){ .layout{grid-template-columns:minmax(0,1fr);} }
 
   .card{
     background:var(--surface);border:1px solid var(--border);border-radius:16px;
@@ -149,7 +161,7 @@
   .section-title{display:flex;align-items:center;gap:10px;margin-bottom:4px;}
   .section-title h2{font-size:19px;line-height:1.3;word-break:keep-all;}
   .section-title .num{
-    width:26px;height:26px;border-radius:8px;background:var(--accent);color:#fff;
+    width:26px;height:26px;border-radius:8px;background:var(--accent);color:var(--on-accent);
     display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:12px;font-weight:600;
   }
 
@@ -158,11 +170,12 @@
   .pill{
     border:1px solid var(--border);background:var(--surface-alt);color:var(--ink-soft);
     padding:8px 14px;border-radius:999px;font-size:13.5px;cursor:pointer;user-select:none;
-    transition:background .15s,border-color .15s,color .15s;
+    transition:background-color .18s ease,border-color .18s ease,color .18s ease,transform .12s ease;
   }
+  .pill:active{transform:scale(.97);}
   .pill input{display:none;}
   .pill:hover{border-color:var(--accent);}
-  .pill.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:500;}
+  .pill.active{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:500;}
   .field-block{display:flex;flex-direction:column;gap:8px;}
   .field-label{font-size:13px;color:var(--ink-soft);font-weight:500;}
   .elig-note{
@@ -174,7 +187,10 @@
   @media (max-width:795px){.elig-grid{grid-template-columns:1fr;}}
   @media (min-width:796px){ #grp-cohort{flex-wrap:nowrap;} }
   .basic-info{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px;}
-  @media (max-width:760px){.basic-info{grid-template-columns:1fr 1fr;}}
+  @media (max-width:760px){.basic-info{grid-template-columns:repeat(2,minmax(0,1fr));}}
+  @media (max-width:359px){.basic-info{grid-template-columns:minmax(0,1fr);}}
+  .basic-info > div{min-width:0;}
+  .basic-info .txt-input{min-width:0;}
   .basic-info input{
     width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border-strong);
     background:var(--surface);color:var(--ink);font-size:13px;
@@ -194,6 +210,14 @@
   .cat-titles{flex:1;min-width:0;}
   .cat-titles h3{font-size:15.5px;font-weight:700;word-break:keep-all;}
   .cat-meta{font-size:12.5px;color:var(--ink-faint);margin-top:3px;word-break:keep-all;}
+  .cat-guide{
+    margin-bottom:12px;padding:12px 14px;border-radius:10px;background:var(--surface-alt);
+    border:1px solid var(--border);font-size:12.5px;line-height:1.65;color:var(--ink-soft);word-break:keep-all;
+  }
+  .cat-guide b{color:var(--ink);}
+  .cat-guide ol,.cat-guide ul{margin:6px 0;padding-left:20px;}
+  .cat-guide li{margin:2px 0;}
+  .cat-guide ul ul{margin:2px 0;}
   .cat-score{
     flex:none;font-family:var(--font-mono);
     display:flex;align-items:baseline;justify-content:flex-end;gap:5px;white-space:nowrap;
@@ -231,7 +255,7 @@
     border-radius:6px;padding:2px 9px;margin-right:6px;font-size:11px;font-weight:600;
     vertical-align:middle;
   }
-  .form-download:hover{background:var(--accent);color:#fff;}
+  .form-download:hover{background:var(--accent);color:var(--on-accent);}
   .doc-upload{
     display:flex;flex-wrap:wrap;align-items:center;gap:8px;
     max-height:0;opacity:0;overflow:hidden;margin-top:0;transform:translateY(-6px);
@@ -265,7 +289,7 @@
     background:var(--accent-soft);color:var(--accent-strong);border:1px dashed var(--accent);
     border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;white-space:nowrap;
   }
-  .upload-btn:hover{background:var(--accent);color:#fff;}
+  .upload-btn:hover{background:var(--accent);color:var(--on-accent);}
   .upload-btn input{display:none;}
   .upload-hint{font-size:11px;color:var(--ink-faint);width:100%;margin-top:2px;}
   .upload-list{display:flex;flex-wrap:wrap;gap:8px;}
@@ -334,8 +358,12 @@
   .sign-card .field-row{margin-bottom:12px;}
   .sign-check{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--ink-soft);line-height:1.6;cursor:pointer;}
   .sign-check input{margin-top:3px;flex:none;width:16px;height:16px;accent-color:var(--accent);}
-  .sign-warn{color:var(--fail);font-size:12px;margin-top:8px;display:none;}
-  .sign-warn.show{display:block;}
+  .sign-warn{
+    color:var(--fail);font-size:12px;margin-top:0;
+    max-height:0;opacity:0;overflow:hidden;transform:translateY(-4px);
+    transition:max-height .35s ease,opacity .3s ease,margin-top .35s ease,transform .3s ease;
+  }
+  .sign-warn.show{opacity:1;margin-top:8px;transform:none;}
 
   select,.txt-input{
     padding:8px 10px;border-radius:8px;border:1px solid var(--border-strong);
@@ -381,9 +409,11 @@
   .entry-extra-hint{font-size:11px;color:var(--ink-faint);max-width:420px;margin-top:-1px;}
   .btn{
     display:inline-flex;align-items:center;gap:6px;
-    background:var(--accent);color:#fff;border:none;border-radius:8px;
+    background:var(--accent);color:var(--on-accent);border:none;border-radius:8px;
     padding:8px 14px;font-size:13px;font-weight:500;cursor:pointer;
+    transition:background-color .18s ease,color .18s ease,border-color .18s ease,box-shadow .18s ease,transform .12s ease;
   }
+  .btn:active{transform:scale(.98);}
   .btn:hover{background:var(--accent-strong);}
   .btn-ghost{
     background:transparent;color:var(--accent);border:1px solid var(--accent);
@@ -404,12 +434,12 @@
                margin-bottom .3s cubic-bezier(.4,0,.2,1);
   }
   .empty-hint{
-    display:inline-flex;align-items:center;gap:7px;
+    display:inline-flex;align-items:flex-start;gap:7px;
     font-size:12.5px;color:var(--ink-faint);
     background:var(--surface-alt);border:1px dashed var(--border);
-    border-radius:999px;padding:7px 14px;
+    border-radius:16px;padding:7px 14px;
   }
-  .empty-hint::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--ink-faint);flex:none;}
+  .empty-hint::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--ink-faint);flex:none;margin-top:8px;}
 
   /* toggle switch style for boolean items */
   .switch-row{display:flex;align-items:center;gap:12px;}
@@ -535,6 +565,114 @@
     .print-report tr.report-total-row td{border-top:2px solid #222;border-bottom:none;font-weight:700;padding-top:8px;}
     .print-report .report-result{margin-top:14px;padding:10px 14px;border:1.5px solid #222;border-radius:4px;font-size:12.5px;display:flex;justify-content:space-between;align-items:center;page-break-inside:avoid;}
     .print-report .report-result b{font-size:15px;}
+  }
+  /* ---------- 공통: 펼침/접힘 래퍼 (패딩 없는 바깥 박스에서만 높이 애니메이션) ---------- */
+  .reveal{
+    max-height:0;opacity:0;overflow:hidden;transform:translateY(-4px);
+    transition:max-height .35s ease,opacity .3s ease,transform .3s ease;
+  }
+  .reveal.show{opacity:1;transform:none;}
+
+  /* ---------- 버튼류 hover/press 전환 ---------- */
+  .upload-btn,.form-download{transition:background-color .18s ease,color .18s ease,border-color .18s ease,transform .12s ease;}
+  .upload-btn:active,.form-download:active{transform:scale(.97);}
+  .entry .rm{transition:color .15s ease,transform .12s ease;}
+  .entry .rm:active{transform:scale(.88);}
+  .acc-btn{transition:color .18s ease;}
+  .acc-btn:hover{color:var(--accent);}
+  .switch:active::after{transform:scale(.92);}
+  .switch.on:active::after{transform:translateX(18px) scale(.92);}
+
+  /* ---------- 커스텀 드롭다운 ---------- */
+  .csel{position:relative;display:inline-flex;vertical-align:middle;min-width:170px;max-width:100%;}
+  .csel-btn{
+    display:flex;align-items:center;gap:10px;width:100%;
+    padding:9px 12px 9px 14px;border-radius:10px;
+    border:1px solid var(--border-strong);background:var(--surface);color:var(--ink);
+    font:inherit;font-size:13.5px;line-height:1.4;text-align:left;cursor:pointer;
+    box-shadow:0 1px 2px rgba(23,26,46,.05);
+    transition:border-color .18s ease,box-shadow .18s ease,background-color .18s ease;
+  }
+  .csel-btn:hover{border-color:var(--accent);}
+  .csel-btn:focus-visible{outline:none;}
+  .csel.open .csel-btn,.csel-btn:focus-visible,.csel:focus-within .csel-btn{
+    border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);
+  }
+  .csel-face{display:grid;grid-template-columns:minmax(0,1fr);flex:1;min-width:0;}
+  .csel-item{grid-area:1/1;display:flex;align-items:center;gap:8px;min-width:0;visibility:hidden;}
+  .csel-item.cur{visibility:visible;}
+  .csel-main{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .csel-pts{
+    flex:none;margin-left:auto;font-family:var(--font-mono);font-size:11.5px;font-weight:600;
+    color:var(--accent-strong);background:var(--accent-soft);padding:1px 8px;border-radius:999px;
+    transition:background-color .12s ease,color .12s ease;
+  }
+  .csel-chev{flex:none;width:16px;height:16px;color:var(--ink-faint);transition:transform .22s cubic-bezier(.4,0,.2,1),color .18s ease;}
+  .csel.open .csel-chev{transform:rotate(180deg);color:var(--accent);}
+  /* 원본 select는 값·이벤트 보관용으로 남겨두고 화면에서는 숨김. 터치 기기에서는
+     투명한 채로 버튼 위에 그대로 덮어 두어, 탭하면 휴대폰 기본 선택 창이 열리게 함 */
+  .csel > select.csel-native{
+    position:absolute;inset:0;width:100%;height:100%;min-width:0;margin:0;padding:0;
+    opacity:0;cursor:pointer;font-size:16px;border:none;
+  }
+  @media (hover:hover) and (pointer:fine){
+    .csel > select.csel-native{visibility:hidden;pointer-events:none;}
+  }
+  .csel-pop{
+    position:fixed;z-index:1000;left:0;top:0;overflow-y:auto;overscroll-behavior:contain;
+    padding:6px;border-radius:12px;background:var(--surface);border:1px solid var(--border);
+    box-shadow:var(--pop-shadow);
+    opacity:0;transform:translateY(-6px) scale(.98);transform-origin:top center;
+    transition:opacity .16s ease,transform .2s cubic-bezier(.2,.8,.2,1);
+  }
+  .csel-pop.up{transform:translateY(6px) scale(.98);transform-origin:bottom center;}
+  .csel-pop.in{opacity:1;transform:none;}
+  .csel-pop.out{opacity:0;transition-duration:.14s;}
+  .csel-opt{
+    display:flex;align-items:center;gap:8px;padding:9px 10px 9px 8px;border-radius:8px;
+    font-size:13.5px;color:var(--ink);cursor:pointer;white-space:nowrap;
+    transition:background-color .12s ease,color .12s ease;
+  }
+  .csel-opt.active{background:var(--surface-alt);}
+  .csel-opt[aria-selected="true"]{color:var(--accent-strong);font-weight:600;}
+  .csel-check{flex:none;width:16px;height:16px;color:var(--accent);opacity:0;transform:scale(.6);transition:opacity .15s ease,transform .15s ease;}
+  .csel-opt[aria-selected="true"] .csel-check{opacity:1;transform:none;}
+  .csel-opt .csel-pts{background:var(--surface-alt);color:var(--ink-soft);}
+  .csel-opt.active .csel-pts{background:var(--surface);}
+  .csel-opt[aria-selected="true"] .csel-pts{background:var(--accent-soft);color:var(--accent-strong);}
+  .entry > .csel{flex:0 1 auto;}
+  /* 실적 카드에는 오른쪽에 이미 점수가 따로 표시되므로 닫힌 버튼 안의 점수 배지는 생략(목록에서는 표시) */
+  .entry .csel-btn .csel-pts{display:none;}
+  @media (max-width:520px){
+    .entry > .csel{flex:1 1 60%;}
+  }
+
+  /* ---------- 모바일 하단 점수 바 ---------- */
+  .score-dock{display:none;}
+  @media (max-width:1080px){
+    .score-dock{
+      display:block;position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom, 0px));z-index:50;
+      opacity:0;transform:translateY(130%);pointer-events:none;
+      transition:transform .34s cubic-bezier(.2,.8,.2,1),opacity .26s ease;
+    }
+    .score-dock.show{opacity:1;transform:none;pointer-events:auto;}
+  }
+  .score-dock-inner{
+    width:100%;max-width:560px;margin:0 auto;display:flex;align-items:center;gap:12px;
+    padding:10px 14px;border-radius:14px;background:var(--surface);border:1px solid var(--border);
+    box-shadow:var(--pop-shadow);color:var(--ink);font:inherit;text-align:left;cursor:pointer;
+    transition:transform .12s ease;
+  }
+  .score-dock-inner:active{transform:scale(.99);}
+  .sd-score{font-family:var(--font-mono);font-size:13px;color:var(--ink-faint);white-space:nowrap;}
+  .sd-score b{font-size:20px;color:var(--ink);margin-right:3px;}
+  .score-dock .status-badge{padding:4px 10px;font-size:12px;}
+  .sd-go{margin-left:auto;font-size:12.5px;color:var(--accent);font-weight:600;white-space:nowrap;}
+
+  .page > .footnote{margin-top:22px;}
+
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{transition-duration:.01ms !important;animation-duration:.01ms !important;}
   }
 </style>
 
@@ -688,16 +826,33 @@
           <div class="cat-head">
             <div class="cat-no">01</div>
             <div class="cat-titles">
-              <h3>졸업 전시회 참여</h3>
-              <div class="cat-meta">Pass 15점 / Fail 5점 (심사 참여 필수) &middot; 예술공학부 졸업 필수 요건</div>
+              <h3>캡스톤 프로젝트 &middot; 졸업 전시회</h3>
+              <div class="cat-meta">졸업전시 최종 참여 15점 / 캡스톤프로젝트1 수강 5점 &middot; 캡스톤프로젝트1 수강은 예술공학부 졸업 필수 요건</div>
             </div>
             <div class="cat-score"><span class="val" id="score-exhibit">0</span><div class="cap">점</div></div>
           </div>
           <div class="cat-body">
+            <div class="cat-guide">
+              <div>캡스톤 프로젝트를 어느 단계까지 수강했는지에 따라 점수가 정해집니다.</div>
+              <ol>
+                <li><b>캡스톤프로젝트1</b>: Pass / Fail 판정</li>
+                <li><b>캡스톤프로젝트2</b>: 캡스톤프로젝트1을 Pass한 학생은 수강 여부를 선택할 수 있으며, 수강한 경우 졸업전시 심사를 받습니다.</li>
+              </ol>
+              <ul>
+                <li><b>15점</b>: 캡스톤프로젝트2를 수강하고 졸업전시까지 최종 참여한 경우</li>
+                <li><b>5점</b>: 그 외 캡스톤프로젝트1을 수강한 경우
+                  <ul>
+                    <li>캡스톤프로젝트1에서 Fail을 받은 경우</li>
+                    <li>캡스톤프로젝트1을 Pass했으나 캡스톤프로젝트2를 수강하지 않은 경우</li>
+                    <li>캡스톤프로젝트2 수강 중 졸업전시 심사에서 Fail을 받은 경우</li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
             <div class="pill-group" id="grp-exhibit">
-              <label class="pill"><input type="radio" name="exhibit" value="pass">Pass (15점)</label>
-              <label class="pill"><input type="radio" name="exhibit" value="fail">Fail (5점)</label>
-              <label class="pill active"><input type="radio" name="exhibit" value="none" checked>미참여 / 해당없음</label>
+              <label class="pill"><input type="radio" name="exhibit" value="pass">졸업전시 최종 참여 (15점)</label>
+              <label class="pill"><input type="radio" name="exhibit" value="fail">캡스톤1 수강 (5점)</label>
+              <label class="pill active"><input type="radio" name="exhibit" value="none" checked>캡스톤1 미수강</label>
             </div>
             <div class="link-field" id="linkfield-exhibit-project">
               <label for="info-exhibit-project">프로젝트명</label>
@@ -726,12 +881,11 @@
           </div>
           <div class="cat-body">
             <select id="sel-topcit">
-              <option value="0">응시 결과 선택…</option>
+              <option value="0">미응시 / 300점 미만 (0점)</option>
               <option value="20">850점 이상 (20점)</option>
               <option value="15">650 ~ 849점 (15점)</option>
               <option value="10">400 ~ 649점 (10점)</option>
               <option value="5">300 ~ 399점 (5점)</option>
-              <option value="0">300점 미만 / 미응시 (0점)</option>
             </select>
           </div>
           <div class="cat-docs">
@@ -996,10 +1150,6 @@
         <div id="accordion"></div>
       </section>
 
-      <p class="footnote">본 페이지는 학생 편의를 위한 자가진단 도구이며, 공식 통과 판정은 졸업인증 지도교수의 확인·승인 및 학부 졸업사정위원회 심의를 거쳐 최종 확정됩니다.<br>
-      「SW졸업인증제 운영에 관한 내규」 2025.12.26. 제정 · 담당부서: 예술공학대학 교학지원팀 · 중앙대학교<br>
-      제작자: 조교 고윤태<br>
-      업데이트 · 2026. 9. 7.</p>
     </main>
 
     <!-- SUMMARY -->
@@ -1011,7 +1161,7 @@
         <div class="bar"><div class="bar-fill" id="barFill" style="width:0%"></div></div>
         <span class="status-badge fail" id="statusBadge"><span class="ico"></span><span id="statusText">미통과</span></span>
         <div class="gap-note" id="gapNote"></div>
-        <div class="warn-note no-print" id="exhibitWarn" style="display:none;">⚠ 졸업 전시회는 SW졸업인증 점수와 별개로 예술공학부 졸업 필수 요건입니다.</div>
+        <div class="reveal no-print" id="exhibitWarnWrap"><div class="warn-note" id="exhibitWarn">⚠ 캡스톤프로젝트1 수강은 SW졸업인증 점수와 별개로 예술공학부 졸업 필수 요건입니다.</div></div>
         <button class="btn print-btn no-print" id="printBtn">진단 결과 + 첨부이미지 인쇄 / <br class="btn-break">PDF 저장</button>
         <button class="btn btn-ghost print-btn no-print" id="saveAsBtn">다른 이름으로 저장 (입력 내용 기록)</button>
         <p class="cat-meta no-print" style="margin-top:8px;">이 웹페이지 자체는 저장되지 않습니다. 입력한 내용을 나중에 수정 또는 따로 저장하고 싶다면 '다른 이름으로 저장' 버튼으로 파일을 내려받아 보관하세요.</p>
@@ -1028,6 +1178,19 @@
         <p class="cat-meta" style="margin-top:10px;">증빙서류를 첨부하지 않으면 점수가 인정되지 않습니다.</p>
       </div>
     </aside>
+  </div>
+
+  <p class="footnote no-print">본 페이지는 학생 편의를 위한 자가진단 도구이며, 공식 통과 판정은 졸업인증 지도교수의 확인·승인 및 학부 졸업사정위원회 심의를 거쳐 최종 확정됩니다.<br>
+      「SW졸업인증제 운영에 관한 내규」 2025.12.26. 제정 · 담당부서: 중앙대학교 예술공학대학 교학지원팀<br>
+      제작자: 조교 고윤태<br>
+      업데이트 · 2026. 10. 22.</p>
+
+  <div class="score-dock no-print" id="scoreDock" aria-hidden="true">
+    <button type="button" class="score-dock-inner" id="scoreDockBtn" tabindex="-1">
+      <span class="sd-score"><b id="dockTotal">0</b><span id="dockDenom">/ 20점</span></span>
+      <span class="status-badge fail" id="dockBadge"><span class="ico"></span><span id="dockStatus">미통과</span></span>
+      <span class="sd-go">결과 보기</span>
+    </button>
   </div>
 
   <div class="print-report" id="printReport">
@@ -1058,10 +1221,283 @@
      초기 마크업을 유지함 — 여기에 입력값만 별도 JSON으로 얹어서 내보냄. */
   var PRISTINE_HTML = document.documentElement.outerHTML;
 
+  var booted = false; // init()이 끝나기 전(첫 화면 구성·저장 기록 복원 중)에는 애니메이션 없이 즉시 그림
+  var REDUCE_MOTION = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+
+  /* 펼침/접힘 공통 처리. 바깥 박스(패딩 없음)의 max-height를 실측 높이로 전환하고,
+     다 펼쳐진 뒤에는 max-height 제약을 풀어 이후 내용이 늘어나도 잘리지 않게 함.
+     접을 때는 scrollHeight(전체 내용 높이)가 아니라 "지금 화면에 보이는 높이"에서
+     출발해야, 펼쳐지는 도중에 다시 접어도 순간적으로 커졌다가 줄어드는 튐이 없음. */
+  function setReveal(box, show){
+    if(!box) return;
+    clearTimeout(box._revealTimer);
+    if(!booted || REDUCE_MOTION){
+      box.classList.toggle("show", show);
+      box.style.overflow = show ? "visible" : "hidden";
+      box.style.maxHeight = show ? "none" : "0px";
+      return;
+    }
+    if(show){
+      if(box.classList.contains("show") && box.style.maxHeight === "none") return;
+      box.style.overflow = "hidden";
+      box.classList.add("show");
+      box.style.maxHeight = box.scrollHeight + "px";
+      box._revealTimer = setTimeout(function(){
+        box.style.overflow = "visible";
+        box.style.maxHeight = "none";
+      }, 380);
+    } else {
+      if(!box.classList.contains("show")) return;
+      var current = box.getBoundingClientRect().height;
+      box.style.overflow = "hidden";
+      box.style.maxHeight = current + "px";
+      void box.offsetHeight;
+      box.style.maxHeight = "0px";
+      box.classList.remove("show");
+    }
+  }
+
+  /* 내용(문구)이 바뀌면서 높이가 달라지는 박스를 툭 튀지 않고 부드럽게 늘이고 줄임 */
+  function animateHeight(box, mutate){
+    if(!box){ mutate(); return; }
+    var hidden = !box.isConnected || box.getClientRects().length === 0;
+    if(!booted || REDUCE_MOTION || hidden){ mutate(); return; }
+    var start = box.getBoundingClientRect().height;
+    clearTimeout(box._hTimer);
+    box.style.transition = "";
+    box.style.height = "";
+    mutate();
+    var end = box.getBoundingClientRect().height;
+    if(Math.abs(end - start) < 1){ box.style.overflow = ""; return; }
+    box.style.overflow = "hidden";
+    box.style.height = start + "px";
+    void box.offsetHeight;
+    box.style.transition = "height .3s cubic-bezier(.4,0,.2,1)";
+    box.style.height = end + "px";
+    box._hTimer = setTimeout(function(){
+      box.style.transition = ""; box.style.height = ""; box.style.overflow = "";
+    }, 330);
+  }
+  function setTextSmooth(node, text, asHtml){
+    var cur = asHtml ? node.innerHTML : node.textContent;
+    if(cur === text) return;
+    animateHeight(node, function(){ if(asHtml) node.innerHTML = text; else node.textContent = text; });
+  }
+
+  /* 총점 숫자를 이전 값에서 새 값까지 짧게 카운트하며 바꿈 */
+  function animateNumber(node, to){
+    var from = parseFloat(node.getAttribute("data-val"));
+    if(isNaN(from)) from = parseFloat(node.textContent) || 0;
+    node.setAttribute("data-val", to);
+    cancelAnimationFrame(node._raf);
+    if(from === to || !booted || REDUCE_MOTION){ node.textContent = to; return; }
+    var t0 = performance.now(), dur = 380;
+    var ints = Math.round(from) === from && Math.round(to) === to;
+    (function step(now){
+      var k = Math.min(1, (now - t0) / dur);
+      var e = 1 - Math.pow(1 - k, 3);
+      var v = from + (to - from) * e;
+      node.textContent = k < 1 ? (ints ? Math.round(v) : Math.round(v * 10) / 10) : to;
+      if(k < 1) node._raf = requestAnimationFrame(step);
+    })(t0);
+  }
+
+  /* ---------------- 커스텀 드롭다운 ----------------
+     원본 <select>는 그대로 두고(값 보관·change 이벤트·저장/복원 로직은 기존 그대로)
+     겉모양만 디자인된 버튼 + 목록으로 바꿈. 마우스를 쓰는 PC에서는 디자인된 목록이
+     열리고, 터치 기기에서는 투명한 원본 select가 버튼 위에 덮여 있어 휴대폰 기본
+     선택 창이 열림(작은 화면에서 가장 쓰기 편하고 안정적이기 때문). */
+  var FINE_POINTER = window.matchMedia ? window.matchMedia("(hover: hover) and (pointer: fine)").matches : true;
+  var cselOpenState = null;
+  var cselUid = 0;
+  var CSEL_CHEV = '<svg class="csel-chev" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var CSEL_CHECK = '<svg class="csel-check" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  function splitOptLabel(text){
+    var m = /^(.*\S)\s*(?:·\s*(\d+점)|\((\d+점)\))\s*$/.exec(text);
+    return m ? {main:m[1], pts:m[2] || m[3]} : {main:text, pts:""};
+  }
+  function optLabelHtml(text){
+    var s = splitOptLabel(text);
+    return '<span class="csel-main">' + escapeHtml(s.main) + '</span>' + (s.pts ? '<span class="csel-pts">' + escapeHtml(s.pts) + '</span>' : '');
+  }
+
+  function enhanceSelect(sel, ariaLabel){
+    if(sel._csel) return sel._csel.wrap;
+    var wrap = el("div", "csel");
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "csel-btn";
+    btn.setAttribute("role", "combobox");
+    btn.setAttribute("aria-haspopup", "listbox");
+    btn.setAttribute("aria-expanded", "false");
+    if(ariaLabel){ btn.setAttribute("aria-label", ariaLabel); sel.setAttribute("aria-label", ariaLabel); }
+    var face = el("span", "csel-face");
+    btn.appendChild(face);
+    btn.insertAdjacentHTML("beforeend", CSEL_CHEV);
+    if(sel.parentNode) sel.parentNode.insertBefore(wrap, sel);
+    wrap.appendChild(btn);
+    wrap.appendChild(sel);
+    sel.classList.add("csel-native");
+    if(FINE_POINTER){ sel.tabIndex = -1; }
+    else { btn.tabIndex = -1; btn.setAttribute("aria-hidden", "true"); }
+    var st = {wrap:wrap, select:sel, btn:btn, face:face, built:false};
+    sel._csel = st;
+    sel.addEventListener("change", function(){ cselRender(st); });
+    btn.addEventListener("click", function(e){
+      if(e.detail === 0) return; // 키보드로 생긴 click은 keydown에서 이미 처리함
+      if(cselOpenState && cselOpenState.st === st) cselClose(); else cselOpen(st);
+    });
+    btn.addEventListener("keydown", function(e){ cselKey(st, e); });
+    btn.addEventListener("blur", function(){
+      setTimeout(function(){
+        if(cselOpenState && cselOpenState.st === st && document.activeElement !== btn) cselClose();
+      }, 0);
+    });
+    cselRender(st);
+    return wrap;
+  }
+
+  function cselRender(st){
+    var sel = st.select;
+    if(!st.built){
+      st.built = true;
+      var html = "";
+      Array.prototype.forEach.call(sel.options, function(o, i){
+        html += '<span class="csel-item" data-i="' + i + '">' + optLabelHtml(o.text) + '</span>';
+      });
+      st.face.innerHTML = html;
+    }
+    var idx = sel.selectedIndex;
+    Array.prototype.forEach.call(st.face.children, function(it, i){ it.classList.toggle("cur", i === idx); });
+  }
+  function refreshCustomSelects(){
+    $all("select.csel-native").forEach(function(s){ if(s._csel) cselRender(s._csel); });
+  }
+
+  function cselOpen(st){
+    cselClose(true);
+    var sel = st.select;
+    var pop = el("div", "csel-pop");
+    var id = "csel-list-" + (++cselUid);
+    pop.id = id;
+    pop.setAttribute("role", "listbox");
+    if(st.btn.getAttribute("aria-label")) pop.setAttribute("aria-label", st.btn.getAttribute("aria-label"));
+    Array.prototype.forEach.call(sel.options, function(o, i){
+      var opt = el("div", "csel-opt", CSEL_CHECK + optLabelHtml(o.text));
+      opt.id = id + "-" + i;
+      opt.setAttribute("role", "option");
+      opt.setAttribute("aria-selected", i === sel.selectedIndex ? "true" : "false");
+      opt.addEventListener("mousemove", function(){ cselSetActive(i); });
+      opt.addEventListener("click", function(){ cselChoose(i); });
+      pop.appendChild(opt);
+    });
+    // 목록을 누르는 순간 버튼의 포커스가 빠지면 blur 처리로 목록이 먼저 닫혀버리므로 막아둠
+    pop.addEventListener("mousedown", function(e){ e.preventDefault(); });
+    document.body.appendChild(pop);
+    cselOpenState = {st:st, pop:pop, active:Math.max(0, sel.selectedIndex)};
+    st.wrap.classList.add("open");
+    st.btn.setAttribute("aria-expanded", "true");
+    st.btn.setAttribute("aria-controls", id);
+    cselPosition();
+    cselSetActive(cselOpenState.active);
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ pop.classList.add("in"); }); });
+  }
+
+  function cselPosition(){
+    var o = cselOpenState;
+    if(!o) return;
+    var r = o.st.btn.getBoundingClientRect();
+    var vw = document.documentElement.clientWidth, vh = window.innerHeight;
+    if(r.bottom < 0 || r.top > vh){ cselClose(); return; }
+    var pop = o.pop;
+    pop.style.minWidth = r.width + "px";
+    pop.style.maxWidth = Math.min(440, vw - 16) + "px";
+    pop.style.maxHeight = "none";
+    var natural = pop.offsetHeight;
+    var below = vh - r.bottom - 14, above = r.top - 14;
+    var up = natural > below && above > below;
+    var maxH = Math.max(140, Math.min(340, up ? above : below));
+    pop.style.maxHeight = maxH + "px";
+    var hgt = Math.min(natural, maxH);
+    var w = pop.offsetWidth;
+    pop.style.left = Math.min(Math.max(8, r.left), vw - w - 8) + "px";
+    pop.style.top = (up ? (r.top - hgt - 6) : (r.bottom + 6)) + "px";
+    pop.classList.toggle("up", up);
+  }
+
+  function cselSetActive(i){
+    var o = cselOpenState;
+    if(!o) return;
+    var opts = o.pop.children;
+    i = Math.max(0, Math.min(opts.length - 1, i));
+    Array.prototype.forEach.call(opts, function(x, j){ x.classList.toggle("active", j === i); });
+    o.active = i;
+    o.st.btn.setAttribute("aria-activedescendant", opts[i].id);
+    var x = opts[i], pop = o.pop;
+    if(x.offsetTop < pop.scrollTop) pop.scrollTop = x.offsetTop - 6;
+    else if(x.offsetTop + x.offsetHeight > pop.scrollTop + pop.clientHeight) pop.scrollTop = x.offsetTop + x.offsetHeight - pop.clientHeight + 6;
+  }
+
+  function cselChoose(i){
+    var o = cselOpenState;
+    if(!o) return;
+    var st = o.st, sel = st.select;
+    var changed = sel.selectedIndex !== i;
+    sel.selectedIndex = i;
+    cselClose();
+    st.btn.focus({preventScroll:true});
+    cselRender(st);
+    if(changed) sel.dispatchEvent(new Event("change", {bubbles:true}));
+  }
+
+  function cselClose(immediate){
+    var o = cselOpenState;
+    if(!o) return;
+    cselOpenState = null;
+    o.st.wrap.classList.remove("open");
+    o.st.btn.setAttribute("aria-expanded", "false");
+    o.st.btn.removeAttribute("aria-activedescendant");
+    var pop = o.pop;
+    if(immediate || REDUCE_MOTION){ if(pop.parentNode) pop.parentNode.removeChild(pop); return; }
+    pop.classList.remove("in");
+    pop.classList.add("out");
+    pop.style.pointerEvents = "none";
+    setTimeout(function(){ if(pop.parentNode) pop.parentNode.removeChild(pop); }, 180);
+  }
+
+  function cselKey(st, e){
+    var k = e.key;
+    var isOpen = cselOpenState && cselOpenState.st === st;
+    if(!isOpen){
+      if(k === "ArrowDown" || k === "ArrowUp" || k === "Enter" || k === " "){ e.preventDefault(); cselOpen(st); }
+      return;
+    }
+    var n = cselOpenState.pop.children.length;
+    if(k === "ArrowDown"){ e.preventDefault(); cselSetActive(cselOpenState.active + 1); }
+    else if(k === "ArrowUp"){ e.preventDefault(); cselSetActive(cselOpenState.active - 1); }
+    else if(k === "Home"){ e.preventDefault(); cselSetActive(0); }
+    else if(k === "End"){ e.preventDefault(); cselSetActive(n - 1); }
+    else if(k === "Enter" || k === " "){ e.preventDefault(); cselChoose(cselOpenState.active); }
+    else if(k === "Escape"){ e.preventDefault(); cselClose(); }
+    else if(k === "Tab"){ cselClose(); }
+  }
+
+  document.addEventListener("pointerdown", function(e){
+    var o = cselOpenState;
+    if(!o) return;
+    if(o.pop.contains(e.target) || o.st.wrap.contains(e.target)) return;
+    cselClose();
+  }, true);
+  window.addEventListener("resize", function(){ cselPosition(); });
+  window.addEventListener("scroll", function(e){
+    if(cselOpenState && e.target !== cselOpenState.pop) cselPosition();
+  }, true);
+
   var dirty = false;
 
   var CAT_META = [
-    {key:"exhibit",    no:1,  label:"졸업 전시회 참여"},
+    {key:"exhibit",    no:1,  label:"캡스톤 프로젝트 · 졸업전시"},
     {key:"topcit",     no:2,  label:"TOPCIT"},
     {key:"internship", no:3,  label:"산업체 인턴십/현장실습"},
     {key:"startup",    no:4,  label:"신규창업"},
@@ -1102,30 +1538,7 @@
 
   function updateDocUpload(key){
     var show = hasContent(key);
-    [$("#docupload-"+key), $("#linkfield-"+key)].forEach(function(box){
-      if(!box) return;
-      clearTimeout(box._revealTimer);
-      if(show){
-        box.style.overflow = "hidden";
-        box.classList.add("show");
-        box.style.maxHeight = box.scrollHeight + "px";
-        /* 펼침 애니메이션이 끝나면 overflow를 풀고 max-height 제약 자체를 없애서
-           (고정 px 값을 계속 들고 있지 않도록), 이미지가 여러 장 추가되어 목록이
-           나중에 더 길어지거나 창 너비가 바뀌어도 안내 문구가 옛 높이값에 갇혀
-           박스 밖(다음 항목 구분선 아래)으로 밀려나지 않도록 함 */
-        box._revealTimer = setTimeout(function(){
-          box.style.overflow = "visible";
-          box.style.maxHeight = "none";
-        }, 380);
-      } else {
-        var current = box.scrollHeight;
-        box.style.overflow = "hidden";
-        box.style.maxHeight = current + "px"; // "none"에서 바로 0으로는 전환 애니메이션이 되지 않으므로 실측값으로 먼저 고정
-        void box.offsetHeight;
-        box.style.maxHeight = "0px";
-        box.classList.remove("show");
-      }
-    });
+    [$("#docupload-"+key), $("#linkfield-"+key)].forEach(function(box){ setReveal(box, show); });
   }
 
   /* "기타 대체·감면 인정 대상"을 "예"로 선택했을 때만 사유 입력칸과 상담 안내
@@ -1133,26 +1546,7 @@
      애니메이션)을 두 박스 각각에 동일하게 적용함. */
   function updateExemptReveal(){
     var show = eligState.exempt === "yes";
-    [$("#linkfield-exempt"), $("#exemptNoteBox")].forEach(function(box){
-      if(!box) return;
-      clearTimeout(box._revealTimer);
-      if(show){
-        box.style.overflow = "hidden";
-        box.classList.add("show");
-        box.style.maxHeight = box.scrollHeight + "px";
-        box._revealTimer = setTimeout(function(){
-          box.style.overflow = "visible";
-          box.style.maxHeight = "none";
-        }, 380);
-      } else {
-        var current = box.scrollHeight;
-        box.style.overflow = "hidden";
-        box.style.maxHeight = current + "px";
-        void box.offsetHeight;
-        box.style.maxHeight = "0px";
-        box.classList.remove("show");
-      }
-    });
+    [$("#linkfield-exempt"), $("#exemptNoteBox")].forEach(function(box){ setReveal(box, show); });
   }
 
   var scores = {}; // key -> {earned, docLabel}
@@ -1243,7 +1637,7 @@
     if(eligState.gradTerm !== "2027+"){
       note += " 다만 <b>2026년 " + (eligState.gradTerm==="2026-02"?"2월":"8월") + " 졸업예정자</b>는 기존 예술공학대학 졸업작품전시 규정 적용이 원칙이며, 학부에서 정한 절차에 따라 SW졸업인증제 적용 여부를 선택할 수 있습니다.";
     }
-    $("#eligNote").innerHTML = note;
+    setTextSmooth($("#eligNote"), note, true);
     $("#basisLine").textContent = th.basis;
     $("#totalDenom").textContent = "/ " + th.value + "점";
     updateExemptReveal();
@@ -1277,26 +1671,7 @@
   /* "Pass"나 "Fail"을 선택했을 때만 프로젝트명 입력칸을 펼침 — updateExemptReveal과
      동일한 방식(실측 scrollHeight 기반 max-height 애니메이션). */
   function updateExhibitProjectReveal(){
-    var show = singleState.exhibit !== "none";
-    var box = $("#linkfield-exhibit-project");
-    if(!box) return;
-    clearTimeout(box._revealTimer);
-    if(show){
-      box.style.overflow = "hidden";
-      box.classList.add("show");
-      box.style.maxHeight = box.scrollHeight + "px";
-      box._revealTimer = setTimeout(function(){
-        box.style.overflow = "visible";
-        box.style.maxHeight = "none";
-      }, 380);
-    } else {
-      var current = box.scrollHeight;
-      box.style.overflow = "hidden";
-      box.style.maxHeight = current + "px";
-      void box.offsetHeight;
-      box.style.maxHeight = "0px";
-      box.classList.remove("show");
-    }
+    setReveal($("#linkfield-exhibit-project"), singleState.exhibit !== "none");
   }
 
   function wireExhibit(){
@@ -1440,7 +1815,7 @@
   function categoryDetailHtml(c){
     switch(c.key){
       case "exhibit":
-        var exhibitBase = singleState.exhibit === "pass" ? "Pass (심사 참여 완료)" : (singleState.exhibit === "fail" ? "Fail (심사 참여, 결과 Fail)" : "미참여 / 해당없음");
+        var exhibitBase = singleState.exhibit === "pass" ? "졸업전시 최종 참여 (15점)" : (singleState.exhibit === "fail" ? "캡스톤프로젝트1 수강 (5점)" : "캡스톤프로젝트1 미수강");
         var exhibitProjectVal = ($("#info-exhibit-project").value||"").trim();
         return exhibitBase + (exhibitProjectVal ? (" · 프로젝트명: " + escapeHtml(exhibitProjectVal)) : "");
       case "topcit":
@@ -1482,7 +1857,7 @@
         recalcCategory(key);
         recalcAll(); saveState();
       });
-      row.appendChild(sel);
+      row.appendChild(enhanceSelect(sel, (f.label || CAT_META.filter(function(c){ return c.key === key; })[0].label)));
     });
     var rm = el("button","rm","✕");
     rm.type = "button";
@@ -1634,7 +2009,7 @@
     recalcCategory(key);
     recalcAll(); saveState();
 
-    var current = wrap.scrollHeight;
+    var current = wrap.getBoundingClientRect().height;
     wrap.style.overflow = "hidden";
     wrap.style.maxHeight = current + "px";
     void wrap.offsetHeight; // 위에서 지정한 실제 높이를 브라우저가 먼저 확정하도록 강제 리플로우
@@ -1646,13 +2021,13 @@
       if(finished) return;
       finished = true;
       if(wrap.parentNode) wrap.parentNode.removeChild(wrap);
-      if(entryData[key].length === 0 && !listEl.querySelector(".empty-hint-wrap")){
-        /* 방금 막 접힘 애니메이션이 끝난 시점(transitionend 콜백) 안에서 곧바로
-           새 엘리먼트를 추가하고 강제 리플로우(scrollHeight)까지 하면 같은
-           프레임에 레이아웃 작업이 몰려 끝부분에서 살짝 버벅이므로, 한 프레임
-           뒤로 미뤄서 접힘 애니메이션의 마지막 페인트가 먼저 끝나게 함 */
-        requestAnimationFrame(function(){ showEmptyHint(listEl); });
-      }
+    }
+    /* 마지막 항목을 지울 때는 행이 접히는 것과 "등록된 실적이 없습니다" 안내가
+       펼쳐지는 것을 동시에 진행함 — 순서대로 하면 목록이 0까지 완전히 줄었다가
+       다시 늘어나며 한 번 출렁이는 것처럼 보이기 때문(같은 시간·같은 곡선이라
+       전체 높이는 한 방향으로만 매끄럽게 줄어듦). */
+    if(entryData[key].length === 0 && !listEl.querySelector(".empty-hint-wrap")){
+      showEmptyHint(listEl);
     }
     wrap.addEventListener("transitionend", function handler(e){
       if(e.target === wrap && e.propertyName === "max-height"){
@@ -1747,13 +2122,18 @@
     });
   }
 
+  function showSignWarn(warnEl, msg){
+    if(warnEl.classList.contains("show") && warnEl.style.maxHeight === "none") setTextSmooth(warnEl, msg);
+    else { warnEl.textContent = msg; setReveal(warnEl, true); }
+  }
+
   function signWarnRecheck(){
     var nameVal = ($("#sign-name").value||"").trim();
     var infoNameVal = ($("#info-name").value||"").trim();
     var confirmed = $("#sign-confirm").checked;
     var valid = !!(nameVal && confirmed && infoNameVal && infoNameVal === nameVal);
     if(valid){
-      $("#signWarn").classList.remove("show");
+      setReveal($("#signWarn"), false);
     }
   }
 
@@ -1781,22 +2161,19 @@
     var confirmed = $("#sign-confirm").checked;
     var warnEl = $("#signWarn");
     if(!nameVal || !confirmed){
-      warnEl.textContent = "서명과 확인 체크를 모두 완료해야 인쇄/PDF 저장을 진행할 수 있습니다.";
-      warnEl.classList.add("show");
+      showSignWarn(warnEl, "서명과 확인 체크를 모두 완료해야 인쇄/PDF 저장을 진행할 수 있습니다.");
       $("#signCard").scrollIntoView({behavior:"smooth", block:"center"});
       if(!nameVal) $("#sign-name").focus();
       return;
     }
     if(!infoNameVal){
-      warnEl.textContent = "① 적용 기준 확인 칸에 성명을 먼저 입력해주세요.";
-      warnEl.classList.add("show");
+      showSignWarn(warnEl, "① 적용 기준 확인 칸에 성명을 먼저 입력해주세요.");
       $("#info-name").scrollIntoView({behavior:"smooth", block:"center"});
       $("#info-name").focus();
       return;
     }
     if(infoNameVal !== nameVal){
-      warnEl.textContent = "적용 기준 확인에 입력한 성명과 서약 서명란의 성명이 다릅니다. 동일한 성명으로 입력해주세요.";
-      warnEl.classList.add("show");
+      showSignWarn(warnEl, "적용 기준 확인에 입력한 성명과 서약 서명란의 성명이 다릅니다. 동일한 성명으로 입력해주세요.");
       $("#signCard").scrollIntoView({behavior:"smooth", block:"center"});
       $("#sign-name").focus();
       return;
@@ -1810,7 +2187,7 @@
     var exhibitOk = singleState.exhibit !== "none";
     var pass = meetsScore && exhibitOk;
     var isExempt = eligState.exempt === "yes";
-    var statusLabel = isExempt ? "감면 인정 대상" : (pass ? "통과 예상" : (meetsScore && !exhibitOk ? "보류 (졸업전시 미참여)" : "미통과"));
+    var statusLabel = isExempt ? "감면 인정 대상" : (pass ? "통과 예상" : (meetsScore && !exhibitOk ? "보류 (캡스톤1 미수강)" : "미통과"));
     var today = new Date();
     var dateStr = today.getFullYear() + "." + String(today.getMonth()+1).padStart(2,"0") + "." + String(today.getDate()).padStart(2,"0");
 
@@ -1841,7 +2218,7 @@
     var majorVal = $("#info-major").value.trim() || "—";
     var profVal = $("#info-prof").value.trim() || "—";
     $("#report-meta").textContent = ($("#info-name").value.trim()||nameVal) + " (" + ($("#info-id").value.trim()||"학번 미입력") + ") · " + majorVal + " · 지도교수 " + profVal;
-    $("#report-elig").textContent = "통과 기준: " + th.basis + " — " + th.value + "점 이상 시 통과 / 졸업 전시회 참여는 SW졸업인증 점수와 별개의 예술공학부 졸업 필수 요건입니다.";
+    $("#report-elig").textContent = "통과 기준: " + th.basis + " — " + th.value + "점 이상 시 통과 / 캡스톤프로젝트1 수강은 SW졸업인증 점수와 별개의 예술공학부 졸업 필수 요건입니다.";
 
     var tbody = $("#report-tbody");
     tbody.innerHTML = "";
@@ -2012,7 +2389,7 @@
     var isExempt = eligState.exempt === "yes";
     var badgeState = isExempt ? "exempt" : state;
 
-    $("#totalScore").textContent = total;
+    animateNumber($("#totalScore"), total);
     $("#totalDenom").textContent = "/ " + th.value + "점";
     var fill = $("#barFill");
     fill.style.width = pct + "%";
@@ -2020,21 +2397,30 @@
 
     var badge = $("#statusBadge");
     badge.className = "status-badge " + badgeState;
-    var statusLabel = isExempt ? "감면 인정 대상" : { pass:"통과 예상", warn:"보류 (졸업전시 미참여)", fail:"미통과" }[state];
+    var statusLabel = isExempt ? "감면 인정 대상" : { pass:"통과 예상", warn:"보류 (캡스톤1 미수강)", fail:"미통과" }[state];
     $("#statusText").textContent = statusLabel;
 
     var gap = $("#gapNote");
+    var gapText;
     if(isExempt){
-      gap.textContent = "기타 대체·감면 인정 대상으로 표시하셨으므로, 통과 여부는 자동 계산이 아닌 상담 결과에 따라 별도로 결정됩니다.";
+      gapText = "기타 대체·감면 인정 대상으로 표시하셨으므로, 통과 여부는 자동 계산이 아닌 상담 결과에 따라 별도로 결정됩니다.";
     } else if(state === "pass"){
-      gap.textContent = "기준 점수 대비 +" + (total - th.value) + "점 여유가 있습니다.";
+      gapText = "기준 점수 대비 +" + (total - th.value) + "점 여유가 있습니다.";
     } else if(state === "warn"){
-      gap.textContent = "점수 기준(" + th.value + "점)은 충족했지만, 졸업 전시회 참여는 예술공학부의 졸업 필수 요건이라 아직 통과로 보기 어렵습니다.";
+      gapText = "점수 기준(" + th.value + "점)은 충족했지만, 캡스톤프로젝트1 수강은 예술공학부의 졸업 필수 요건이라 아직 통과로 보기 어렵습니다.";
     } else {
-      gap.textContent = "통과까지 " + (th.value - total) + "점이 더 필요합니다.";
+      gapText = "통과까지 " + (th.value - total) + "점이 더 필요합니다.";
     }
+    setTextSmooth(gap, gapText);
 
-    $("#exhibitWarn").style.display = (singleState.exhibit === "none") ? "flex" : "none";
+    setReveal($("#exhibitWarnWrap"), singleState.exhibit === "none");
+
+    // 모바일 하단 점수 바
+    animateNumber($("#dockTotal"), total);
+    $("#dockDenom").textContent = "/ " + th.value + "점";
+    $("#dockBadge").className = "status-badge " + badgeState;
+    $("#dockStatus").textContent = statusLabel;
+    refreshCustomSelects();
 
     // mini table
     var mt = $("#miniTable");
@@ -2187,6 +2573,8 @@
     wireExhibit();
     wireSingleSelect("#sel-topcit", "topcit");
     wireSingleSelect("#sel-exchange", "exchange");
+    enhanceSelect($("#sel-topcit"), "TOPCIT 응시 결과");
+    enhanceSelect($("#sel-exchange"), "해외 교환학생 및 현장교육 기간");
     wireSwitch("#sw-opensource", "opensource", "#lbl-opensource", "공개 기여 실적 있음 (5점)", "공개 기여 실적 없음");
     wireSwitch("#sw-job", "job", "#lbl-job", "재학중 SW·AI 산업체 취업 해당 (10점)", "해당 없음");
     $("#link-opensource").addEventListener("input", function(){
@@ -2202,6 +2590,7 @@
     recalcAll();
 
     $("#printBtn").addEventListener("click", buildAppendixAndPrint);
+    wireScoreDock();
     $("#saveAsBtn").addEventListener("click", exportRecord);
 
     $all("#info-id,#info-name,#info-major,#info-prof,#info-email,#info-graddate").forEach(function(inp){
@@ -2225,6 +2614,24 @@
       signWarnRecheck();
       saveState();
     });
+    booted = true;
+  }
+
+  /* 모바일(1단 배치)에서는 점수·판정 카드가 긴 입력 양식 맨 아래에 있어 보이지 않으므로,
+     그 카드가 화면에 안 보일 때만 하단에 현재 점수와 판정을 띄워 둠. 누르면 결과 카드로 이동. */
+  function wireScoreDock(){
+    var dock = $("#scoreDock"), btn = $("#scoreDockBtn"), summary = $(".summary");
+    if(!dock || !summary) return;
+    btn.addEventListener("click", function(){
+      summary.scrollIntoView({behavior: REDUCE_MOTION ? "auto" : "smooth", block:"start"});
+    });
+    if(!("IntersectionObserver" in window)) return;
+    new IntersectionObserver(function(entries){
+      var visible = entries.some(function(en){ return en.isIntersecting; });
+      dock.classList.toggle("show", !visible);
+      dock.setAttribute("aria-hidden", visible ? "true" : "false");
+      btn.tabIndex = visible ? -1 : 0;
+    }, {rootMargin:"0px 0px -40px 0px"}).observe(summary);
   }
 
   if(document.readyState === "loading"){
